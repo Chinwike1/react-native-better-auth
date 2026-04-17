@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "better-auth-rn",
-    "slug": "better-auth-rn",
+    "slug": "react-native-better-auth",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -39,6 +39,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ec2f90b9-a611-4cab-ad7e-df7bca85e66c"
+      }
+    },
+    "owner": "extra-dip-of-honey"
   }
 }
