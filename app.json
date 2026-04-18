@@ -17,7 +17,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.chinwike.reactnativebetterauth"
     },
     "web": {
       "output": "static",
@@ -46,6 +47,6 @@
         "projectId": "ec2f90b9-a611-4cab-ad7e-df7bca85e66c"
       }
     },
-    "owner": "extra-dip-of-honey"
+    "owner": "chinwike"
   }
 }
