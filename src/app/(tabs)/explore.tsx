@@ -2,17 +2,17 @@ import React, { useEffect } from 'react'
 import { Image, Platform, ScrollView, StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
+import { useAuth } from '@/components/AuthProvider'
 import SignOutButton from '@/components/sign-out-button'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { WebBadge } from '@/components/web-badge'
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme'
 import { useTheme } from '@/hooks/use-theme'
-import { authClient } from '@/lib/auth-client'
 
-export default function TabTwoScreen() {
+export default function ProfileTab() {
   const safeAreaInsets = useSafeAreaInsets()
-  const { data: session } = authClient.useSession()
+  const { session } = useAuth()
   const theme = useTheme()
   const insets = {
     ...safeAreaInsets,
@@ -53,7 +53,7 @@ export default function TabTwoScreen() {
             </ThemedText>
           ) : (
             <ThemedText style={styles.centerText} themeColor='textSecondary'>
-              This starter app includes example{'\n'}code to help you get started.
+              Loading profile...
             </ThemedText>
           )}
 
@@ -106,36 +106,5 @@ const styles = StyleSheet.create({
   avatar: {
     width: '100%',
     height: '100%',
-  },
-  pressed: {
-    opacity: 0.7,
-  },
-  linkButton: {
-    flexDirection: 'row',
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.two,
-    borderRadius: Spacing.five,
-    justifyContent: 'center',
-    gap: Spacing.one,
-    alignItems: 'center',
-  },
-  sectionsWrapper: {
-    gap: Spacing.five,
-    paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.three,
-  },
-  collapsibleContent: {
-    alignItems: 'center',
-  },
-  imageTutorial: {
-    width: '100%',
-    aspectRatio: 296 / 171,
-    borderRadius: Spacing.three,
-    marginTop: Spacing.two,
-  },
-  imageReact: {
-    width: 100,
-    height: 100,
-    alignSelf: 'center',
   },
 })

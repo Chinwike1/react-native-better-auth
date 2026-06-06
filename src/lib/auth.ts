@@ -9,7 +9,12 @@ const database = dbClient.db('better-auth')
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL!,
   plugins: [expo()],
-  database: mongodbAdapter(database, { client: dbClient }),
+  database: mongodbAdapter(database, {
+    client: dbClient,
+    // disable transactions for standalone MongoDB (e.g. local docker, free-tier Atlas M0)
+    // if your deployment supports transactions, set this to true for better consistency
+    transaction: false,
+  }),
   advanced: {
     database: {
       generateId: () => new ObjectId().toHexString(),

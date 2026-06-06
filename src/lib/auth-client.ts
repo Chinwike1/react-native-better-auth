@@ -1,17 +1,9 @@
 import { expoClient } from '@better-auth/expo/client'
 import { createAuthClient } from 'better-auth/react'
-import Constants from 'expo-constants'
 import * as SecureStore from 'expo-secure-store'
 
-// Always use the tunnel URL for auth (both dev and prod)
-const getAuthUrl = () => {
-  return (
-    Constants.expoConfig?.extra?.apiUrl || 'https://mobile-dev.chinwike.space'
-  )
-}
-
 export const authClient = createAuthClient({
-  baseURL: getAuthUrl(),
+  baseURL: process.env.BETTER_AUTH!,
   plugins: [
     expoClient({
       scheme: 'betterauthrn',
@@ -20,3 +12,5 @@ export const authClient = createAuthClient({
     }),
   ],
 })
+
+export const { signIn, signUp, signOut, useSession } = authClient

@@ -21,7 +21,7 @@
       "package": "com.chinwike.reactnativebetterauth"
     },
     "web": {
-      "output": "static",
+      "output": "server",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
@@ -43,7 +43,6 @@
     },
     "extra": {
       "router": {},
-      "apiUrl": "https://devserver.chinwike.space",
       "eas": {
         "projectId": "ec2f90b9-a611-4cab-ad7e-df7bca85e66c"
       }

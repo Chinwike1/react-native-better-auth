@@ -2,56 +2,59 @@ import { Redirect, useRouter } from 'expo-router'
 import { useState } from 'react'
 import {
   ActivityIndicator,
-  Platform,
   Pressable,
   StyleSheet,
   TextInput,
-  View,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-import { AnimatedIcon } from '@/components/animated-icon'
 import { useAuth } from '@/components/AuthProvider'
-import { GoogleSignInButton } from '@/components/google-sign-in-button'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
-import { WebBadge } from '@/components/web-badge'
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme'
+import { MaxContentWidth, Spacing } from '@/constants/theme'
 import { useTheme } from '@/hooks/use-theme'
-import { signIn } from '@/lib/auth-client'
+import { signUp } from '@/lib/auth-client'
 
-export default function SignInScreen() {
+export default function SignUpScreen() {
   const router = useRouter()
   const theme = useTheme()
   const { session, isPending, refetch } = useAuth()
 
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [formError, setFormError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   if (!isPending && session) {
-    return <Redirect href="/home" />
+    return <Redirect href='/home' />
   }
 
   const onSubmit = async () => {
     setFormError(null)
     const normalizedEmail = email.trim().toLowerCase()
-    if (!normalizedEmail || !password) {
-      setFormError('Email and password are required.')
+    const trimmedName = name.trim()
+
+    if (!normalizedEmail || !password || !trimmedName) {
+      setFormError('Name, email, and password are required.')
+      return
+    }
+    if (password !== confirmPassword) {
+      setFormError('Passwords do not match.')
       return
     }
 
     setSubmitting(true)
-    const { error } = await signIn.email({
+    const { error } = await signUp.email({
+      name: trimmedName,
       email: normalizedEmail,
       password,
-      rememberMe: true,
     })
     setSubmitting(false)
 
     if (error) {
-      setFormError(error.message ?? 'Unable to sign in. Please try again.')
+      setFormError(error.message ?? 'Unable to sign up. Please try again.')
       return
     }
 
@@ -59,28 +62,34 @@ export default function SignInScreen() {
     router.replace('/home')
   }
 
+  const inputStyle = [
+    styles.input,
+    {
+      backgroundColor: theme.backgroundElement,
+      borderColor: theme.backgroundSelected,
+      color: theme.text,
+    },
+  ]
+
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
+        <ThemedView style={styles.content}>
           <ThemedText type='title' style={styles.title}>
-            Welcome Back
+            Create account
           </ThemedText>
           <ThemedText style={styles.subtitle}>
-            Sign in to continue to your account
+            Sign up with email and password.
           </ThemedText>
-        </ThemedView>
 
-        <ThemedView style={styles.authContainer}>
-          <GoogleSignInButton />
-
-          <View style={styles.dividerRow}>
-            <View style={[styles.dividerLine, { backgroundColor: theme.backgroundSelected }]} />
-            <ThemedText style={styles.dividerText}>or</ThemedText>
-            <View style={[styles.dividerLine, { backgroundColor: theme.backgroundSelected }]} />
-          </View>
-
+          <TextInput
+            value={name}
+            onChangeText={setName}
+            autoCapitalize='words'
+            placeholder='Full name'
+            placeholderTextColor={theme.textSecondary}
+            style={inputStyle}
+          />
           <TextInput
             value={email}
             onChangeText={setEmail}
@@ -89,14 +98,7 @@ export default function SignInScreen() {
             keyboardType='email-address'
             placeholder='Email'
             placeholderTextColor={theme.textSecondary}
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.backgroundElement,
-                borderColor: theme.backgroundSelected,
-                color: theme.text,
-              },
-            ]}
+            style={inputStyle}
           />
           <TextInput
             value={password}
@@ -105,14 +107,16 @@ export default function SignInScreen() {
             secureTextEntry
             placeholder='Password'
             placeholderTextColor={theme.textSecondary}
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.backgroundElement,
-                borderColor: theme.backgroundSelected,
-                color: theme.text,
-              },
-            ]}
+            style={inputStyle}
+          />
+          <TextInput
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            autoCapitalize='none'
+            secureTextEntry
+            placeholder='Confirm password'
+            placeholderTextColor={theme.textSecondary}
+            style={inputStyle}
           />
 
           {formError ? (
@@ -122,27 +126,25 @@ export default function SignInScreen() {
           <Pressable
             onPress={onSubmit}
             disabled={submitting}
-            style={[styles.submitButton, submitting && styles.buttonDisabled]}
+            style={[styles.button, submitting && styles.buttonDisabled]}
           >
             {submitting ? (
               <ActivityIndicator color='#fff' />
             ) : (
-              <ThemedText style={styles.submitButtonText}>Sign In</ThemedText>
+              <ThemedText style={styles.buttonText}>Create Account</ThemedText>
             )}
           </Pressable>
 
           <ThemedText style={styles.switchText}>
-            No account yet?{' '}
+            Already have an account?{' '}
             <ThemedText
               style={styles.switchLink}
-              onPress={() => router.push('/sign-up')}
+              onPress={() => router.back()}
             >
-              Create one
+              Sign in
             </ThemedText>
           </ThemedText>
         </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
       </SafeAreaView>
     </ThemedView>
   )
@@ -151,51 +153,28 @@ export default function SignInScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     flexDirection: 'row',
+    justifyContent: 'center',
   },
   safeArea: {
     flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
     maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
     paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+  },
+  content: {
+    gap: Spacing.two,
+    paddingVertical: Spacing.six,
   },
   title: {
     textAlign: 'center',
+    marginBottom: Spacing.one,
   },
   subtitle: {
     textAlign: 'center',
-    fontSize: 16,
-    opacity: 0.7,
-  },
-  authContainer: {
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.two,
-    paddingBottom: Spacing.four,
-  },
-  dividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.two,
-    marginVertical: Spacing.one,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-  },
-  dividerText: {
-    fontSize: 13,
-    opacity: 0.5,
+    fontSize: 15,
+    opacity: 0.6,
+    marginBottom: Spacing.two,
   },
   input: {
     minHeight: 48,
@@ -209,7 +188,7 @@ const styles = StyleSheet.create({
     color: '#b91c1c',
     fontSize: 13,
   },
-  submitButton: {
+  button: {
     minHeight: 48,
     borderRadius: 12,
     alignItems: 'center',
@@ -220,7 +199,7 @@ const styles = StyleSheet.create({
   buttonDisabled: {
     opacity: 0.7,
   },
-  submitButtonText: {
+  buttonText: {
     color: '#fff',
     fontWeight: '700',
     fontSize: 16,
